@@ -1,0 +1,5 @@
+.vs
+Debug/*
+PatternFinder/Debug/*
+PatternFinder/*filters
+PatternFinder/*user
