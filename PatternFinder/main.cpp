@@ -51,6 +51,10 @@ int main(int argc, char* argv[])
         {
             finder_type = bm;
         }
+        else
+        {
+            Logger::log("Unknown argument: " + token, verbosity_t::error);
+        }
     }
 
     switch (finder_type)
@@ -63,6 +67,7 @@ int main(int argc, char* argv[])
             break;
     }
     
+    /*
     Logger logger;
 
     logger.remember_time();
@@ -70,6 +75,6 @@ int main(int argc, char* argv[])
     logger.print_duration();
 
     finder->print_result();
-
+    */
     return 0;
 }

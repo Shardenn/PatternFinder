@@ -2,6 +2,8 @@
 
 #include <vector>
 #include <fstream>
+#include <filesystem>
+#include <string>
 
 class pattern_finder
 {
@@ -11,11 +13,11 @@ public:
     //bool is_initialized_successfully() { return b_init_ok; }
 
     pattern_finder(const std::string text_file_path, const std::string pattern);
-    ~pattern_finder();
+    virtual ~pattern_finder();
 
 protected:
     // indeces at which the pattern was found
-    std::vector<int> m_pattern_entries;
+    std::vector<size_t> m_pattern_entries;
     
     const std::string m_text_file_path;
     // if we could not open the file, we'll treat its path as the text itself
@@ -40,9 +42,19 @@ public:
 class kmp_finder : public pattern_finder
 {
 public:
-    kmp_finder(const std::string text_file_path, const std::string pattern) :
-        pattern_finder(text_file_path, pattern)
-    {};
+    kmp_finder(const std::string text_file_path, const std::string pattern);
+
+    virtual ~kmp_finder()
+    {
+        namespace fs = std::filesystem;
+        auto workdir = fs::current_path();
+        fs::remove(workdir / temp_file_name);
+    }
 
     virtual void search() override;
+
+//private:
+    std::vector<size_t> prefix_func(std::string s);
+
+    std::string temp_file_name{"kmp_temp_file.txt"};
 };
