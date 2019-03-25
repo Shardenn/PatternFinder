@@ -1,16 +1,16 @@
 #include "PatternFinder.h"
 #include "logger.hpp"
 
+#include <assert.h>
+
 pattern_finder::pattern_finder(const std::string text_file_path, const std::string pattern) :
     m_pattern(pattern)
 {
     m_text_file.open(text_file_path, std::ios::in);
     
-    if (!m_text_file.is_open())
-    {
-        Logger::log("Could not open the file " + text_file_path, verbosity_t::error);
-        //b_init_ok = false;
-    }
+    assert(m_text_file.is_open());
+    assert(pattern != "");
+
     Logger::log("File " + text_file_path + " opened successfully", verbosity_t::info);
     //b_init_ok = true;
 }
@@ -68,4 +68,9 @@ void naive_finder::search()
     }
 
     delete ch;
+}
+
+void kmp_finder::search()
+{
+
 }

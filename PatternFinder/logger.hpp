@@ -12,18 +12,14 @@ enum verbosity_t
     error
 };
 
+using Clock = std::chrono::high_resolution_clock;
+
 class Logger
 {
 public:
     Logger() {};
-    static void log(std::string text, verbosity_t verbosity = verbosity_t::info, bool log_time = false)
+    static void log(std::string text, verbosity_t verbosity = verbosity_t::info)
     {
-        if (log_time)
-        {
-            auto a = std::chrono::system_clock::now();
-            auto time = std::chrono::system_clock::to_time_t(a);
-            std::cout << ctime(&time) << " ";
-        }
         switch (verbosity)
         {
             case info:
@@ -38,7 +34,22 @@ public:
         }
         std::cout << text << std::endl;
     }
-private:
-    // i love cpp btw
-    std::chrono::time_point<std::chrono::system_clock> m_remembered_time = std::chrono::system_clock::now();
+
+    void remember_time()
+    {
+        m_remembered_time = Clock::now();
+    }
+
+    void print_duration()
+    {
+        auto now = Clock::now();
+
+        using ms = std::chrono::milliseconds;
+        auto duration = std::chrono::duration_cast<ms>(now - m_remembered_time).count();
+        std::string duration_str = std::to_string(duration);
+        log("Time since last remembered time is: " + duration_str);
+    }
+
+    // cant type "auto" here
+    std::chrono::time_point<Clock> m_remembered_time = Clock::now();
 };

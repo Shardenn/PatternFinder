@@ -6,7 +6,7 @@
 class pattern_finder
 {
 public:
-    virtual void search() = 0;
+    virtual void search() {};
     void print_result();
     //bool is_initialized_successfully() { return b_init_ok; }
 
@@ -31,6 +31,16 @@ class naive_finder : public pattern_finder
 {
 public:
     naive_finder(const std::string text_file_path, const std::string pattern) :
+        pattern_finder(text_file_path, pattern)
+    {};
+
+    virtual void search() override;
+};
+
+class kmp_finder : public pattern_finder
+{
+public:
+    kmp_finder(const std::string text_file_path, const std::string pattern) :
         pattern_finder(text_file_path, pattern)
     {};
 
