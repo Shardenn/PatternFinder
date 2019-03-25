@@ -16,8 +16,8 @@ int main(int argc, char* argv[])
     std::string pattern;
     finder_type_t finder_type;
 
-    pattern_finder* finder{ nullptr };
-
+    //pattern_finder* finder{ nullptr };
+    
     for (int i = 1; i < argc; i++)
     {
         std::string token{ argv[i] };
@@ -57,17 +57,17 @@ int main(int argc, char* argv[])
         }
     }
 
+    std::unique_ptr<pattern_finder> finder{ nullptr };
     switch (finder_type)
     {
         case naive:
-            finder = new naive_finder(file_path, pattern);
+            finder = std::unique_ptr<naive_finder>{ new naive_finder(file_path, pattern) };
             break;
         case kmp:
-            finder = new kmp_finder(file_path, pattern);
+            finder = std::unique_ptr<kmp_finder>{ new kmp_finder(file_path, pattern) };
             break;
     }
     
-    /*
     Logger logger;
 
     logger.remember_time();
@@ -75,6 +75,6 @@ int main(int argc, char* argv[])
     logger.print_duration();
 
     finder->print_result();
-    */
+
     return 0;
 }
