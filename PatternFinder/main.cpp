@@ -69,12 +69,18 @@ int main(int argc, char* argv[])
     }
     
     Logger logger;
-
+    /*
     logger.remember_time();
     finder->search();
     logger.print_duration();
 
     finder->print_result();
+    */
 
+    std::ifstream input(file_path, std::ios::binary);
+    char c;
+    logger.remember_time();
+    while (input >> c) {}
+    logger.print_duration();
     return 0;
 }

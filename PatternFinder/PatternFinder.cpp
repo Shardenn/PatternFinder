@@ -6,7 +6,7 @@
 pattern_finder::pattern_finder(const std::string text_file_path, const std::string pattern) :
     m_pattern(pattern)
 {
-    m_text_file.open(text_file_path, std::ios::in);
+    m_text_file.open(text_file_path, std::ios::in | std::ios::binary);
     
     assert(m_text_file.is_open());
     assert(pattern != "");
@@ -37,21 +37,19 @@ void naive_finder::search()
 
     //previous_position = 0;
     int file_pos = 0;
-    char* ch = new char;
+    char c;
     while (!m_text_file.eof() && m_text_file.peek() != EOF)
     {
         int pat_index = 0;
         while (pat_index <= m_pattern.size() && !m_text_file.eof())
         {
-            m_text_file.read(ch, 1);
-            if (*ch != m_pattern[pat_index])
+            m_text_file.get(c);
+            if(c != m_pattern[pat_index])
                 break;
             pat_index++;
 
             if (pat_index + 1 == m_pattern.size())
             {
-                //Logger::log("Found match at position " + std::to_string(file_pos));
-                // "+1" because we are zero based
                 m_pattern_entries.push_back(file_pos + 1);
             }
         }
@@ -59,8 +57,6 @@ void naive_finder::search()
         
         m_text_file.seekg(file_pos);
     }
-
-    delete ch;
 
     Logger::log("Naive finder finished.");
 }
@@ -73,7 +69,7 @@ kmp_finder::kmp_finder(const std::string text_file_path, const std::string patte
 
     fs::remove(temp_file_name);
     // create new file
-    std::ofstream temp_file_stream(temp_file_name, std::ios::trunc);
+    std::ofstream temp_file_stream(temp_file_name, std::ios::trunc | std::ios::binary);
 
     assert(temp_file_stream.is_open());
 
@@ -81,7 +77,7 @@ kmp_finder::kmp_finder(const std::string text_file_path, const std::string patte
     temp_file_stream << "|";
     
     char* c = new char;
-    std::ifstream orig_file(text_file_path, std::ios::in);
+    std::ifstream orig_file(text_file_path, std::ios::in | std::ios::binary);
     while (orig_file.peek() != EOF)
     {
         orig_file.read(c, 1);
@@ -92,7 +88,7 @@ kmp_finder::kmp_finder(const std::string text_file_path, const std::string patte
     temp_file_stream.close();
     
     // open the file again in read mode to get characters count
-    std::ifstream temp_file(temp_file_name, std::ios::in);
+    std::ifstream temp_file(temp_file_name, std::ios::in | std::ios::binary);
 
     char character;
     while (!temp_file.eof())
@@ -107,7 +103,7 @@ void kmp_finder::search()
 {
     Logger::log("KMP finder started...");
 
-    std::ifstream temp_file(temp_file_name);
+    std::ifstream temp_file(temp_file_name, std::ios::binary);
     
     assert(temp_file.is_open());
     
