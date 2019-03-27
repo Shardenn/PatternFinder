@@ -15,9 +15,8 @@ int main(int argc, char* argv[])
     std::string file_path;
     std::string pattern;
     finder_type_t finder_type;
-
-    //pattern_finder* finder{ nullptr };
-    
+        
+    bool args_ok = true;
     for (int i = 1; i < argc; i++)
     {
         std::string token{ argv[i] };
@@ -54,7 +53,14 @@ int main(int argc, char* argv[])
         else
         {
             Logger::log("Unknown argument: " + token, verbosity_t::error);
+            args_ok = false;
         }
+    }
+
+    if (!args_ok)
+    {
+        Logger::log("Check your arguments spelling. Terminating...");
+        return 0;
     }
 
     std::unique_ptr<pattern_finder> finder{ nullptr };
@@ -69,18 +75,12 @@ int main(int argc, char* argv[])
     }
     
     Logger logger;
-    /*
+    
     logger.remember_time();
     finder->search();
     logger.print_duration();
 
     finder->print_result();
-    */
-
-    std::ifstream input(file_path, std::ios::binary);
-    char c;
-    logger.remember_time();
-    while (input >> c) {}
-    logger.print_duration();
+    
     return 0;
 }

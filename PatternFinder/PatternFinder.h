@@ -57,7 +57,7 @@ private:
     size_t m_chars_count{ 0 };
 
     std::vector<size_t> prefix_func(std::string s);
-    std::vector<size_t> prefix_func(std::ifstream* s);
+    std::vector<size_t> get_pattern_entries(std::ifstream* s);
 
     std::string temp_file_name{"kmp_temp_file.txt"};
 };
