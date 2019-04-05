@@ -1,7 +1,7 @@
 #include "PatternFinder.h"
 #include "logger.hpp"
 #include <assert.h>
-
+#include <math.h>
 
 pattern_finder::pattern_finder(const std::string text_file_path, const std::string pattern) :
     m_pattern(pattern)
@@ -65,37 +65,7 @@ void naive_finder::search()
 
 kmp_finder::kmp_finder(const std::string text_file_path, const std::string pattern) :
     pattern_finder(text_file_path, pattern)
-{
-    // create new file
-    std::ofstream temp_file_stream(temp_file_name, std::ios::trunc | std::ios::binary);
-
-    assert(temp_file_stream.is_open());
-
-    temp_file_stream << pattern;
-    temp_file_stream << "|";
-
-    char* c = new char;
-    std::ifstream orig_file(text_file_path, std::ios::in | std::ios::binary);
-    while (orig_file.peek() != EOF)
-    {
-        orig_file.read(c, 1);
-        temp_file_stream.write(c, 1);
-    }
-    delete c;
-
-    temp_file_stream.close();
-
-    // open the file again in read mode to get characters count
-    std::ifstream temp_file(temp_file_name, std::ios::in | std::ios::binary);
-
-    char character;
-    while (!temp_file.eof())
-    {
-        temp_file.get(character);
-        m_chars_count++;
-    }
-    temp_file.close();
-}
+{}
 
 void kmp_finder::search()
 {
@@ -130,8 +100,6 @@ std::vector<size_t> kmp_finder::prefix_func(std::string s)
 
 std::vector<size_t> kmp_finder::get_pattern_entries(std::ifstream* s)
 {
-    assert(m_chars_count != 0);
-
     std::vector<size_t> pi = prefix_func(m_pattern);
 
     std::vector<size_t> res;
@@ -148,4 +116,99 @@ std::vector<size_t> kmp_finder::get_pattern_entries(std::ifstream* s)
         current_index++;
     }
     return res;
+}
+
+boyer_moore_finder::boyer_moore_finder(const std::string text_file_path, const std::string pattern) :
+    pattern_finder(text_file_path, pattern)
+{
+
+}
+
+void boyer_moore_finder::search()
+{
+
+}
+
+rabin_karp_finder::rabin_karp_finder(const std::string text_file_path, const std::string pattern) :
+    pattern_finder(text_file_path, pattern)
+{
+
+}
+
+void rabin_karp_finder::search()
+{
+    int pattern_len = m_pattern.length();
+    
+    int i, j;
+    
+    int p = 0; // hash value for pattern 
+    int t = 0; // hash value for txt 
+    int h = 1;
+
+    // The value of h would be "pow(d, M-1)%q" 
+    h = static_cast<int>(pow(static_cast<double>(alph_length), static_cast<double>(pattern_len - 1))) % prime_delim;
+
+    // Calculate the hash value of pattern and first 
+    // window of text 
+    for (i = 0; i < pattern_len; i++)
+    {
+        p = (alph_length * p + m_pattern[i]) % prime_delim;
+        t = (alph_length * t + m_text_file.get()) % prime_delim;
+    }
+
+    // Slide the pattern over text one by one 
+    m_text_file.seekg(0);
+    while(m_text_file.peek() != EOF)
+    {
+        // Check the hash values of current window of text 
+        // and pattern. If the hash values match then only 
+        // check for characters on by one         
+        if (p == t)
+        {
+            auto previous_position = m_text_file.tellg();
+            /* Check for characters one by one */
+            for (j = 0; j < pattern_len && m_text_file.peek() != EOF; j++)
+            {
+                auto ch = m_text_file.get();
+                if (ch != m_pattern[j])
+                    break;
+            }
+
+            // if p == t and pat[0...M-1] = txt[i, i+1, ...i+M-1] 
+            if (j == pattern_len)
+            {
+                int position_found = previous_position;
+                m_pattern_entries.push_back(position_found + 1);
+            }
+
+            m_text_file.seekg(previous_position);
+        }
+
+        //auto ch = m_text_file.get();
+        // Calculate hash value for next window of text: Remove 
+        // leading digit, add trailing digit 
+        if(m_text_file.peek() != EOF)
+        {
+            auto previous_position = m_text_file.tellg();
+
+            char lost_symbol = m_text_file.get();
+
+            char *symbols = new char[pattern_len + 1];
+            m_text_file.get(symbols, pattern_len + 1);
+            
+            char new_symbol = symbols[pattern_len - 1];
+
+            // casting because char == unsigned int and it results into wrong arithmetics
+            t = ((alph_length * (t - static_cast<int>(lost_symbol) * h)) + static_cast<int>(new_symbol)) % prime_delim;
+
+            // We might get negative value of t, converting it 
+            // to positive 
+            if (t < 0)
+                t = (t + prime_delim);
+
+            delete[] symbols;
+            m_text_file.seekg(previous_position);
+            m_text_file.get();
+        }
+    }
 }

@@ -7,7 +7,8 @@ enum finder_type_t
 {
     naive,
     kmp,
-    bm
+    bm,
+    rk
 };
 
 int main(int argc, char* argv[])
@@ -25,7 +26,7 @@ int main(int argc, char* argv[])
         {
             std::cout << "Program usage:\n"
                 "[-h | --help | --h | -help] prints possible input arguments\n"
-                "[--naive | --kmp | --bm] selects one of the algorithms\n"
+                "[--naive | --kmp | --bm | --rk] selects one of the algorithms\n"
                 "[--file <file_path>] specifies the input file path\n"
                 "[--pattern <pattern>] specifies the pattern to search for\n";
             return 0;
@@ -50,6 +51,10 @@ int main(int argc, char* argv[])
         {
             finder_type = bm;
         }
+        else if (token == "--rk")
+        {
+            finder_type = rk;
+        }
         else
         {
             Logger::log("Unknown argument: " + token, verbosity_t::error);
@@ -63,7 +68,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    std::unique_ptr<pattern_finder> finder{ nullptr };
+    std::unique_ptr<pattern_finder> finder;
     switch (finder_type)
     {
         case naive:
@@ -72,6 +77,8 @@ int main(int argc, char* argv[])
         case kmp:
             finder = std::unique_ptr<kmp_finder>{ new kmp_finder(file_path, pattern) };
             break;
+        case rk:
+            finder = std::unique_ptr<rabin_karp_finder>{ new rabin_karp_finder(file_path, pattern) };
     }
     
     Logger logger;

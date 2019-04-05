@@ -61,3 +61,21 @@ private:
 
     std::string temp_file_name{"kmp_temp_file.txt"};
 };
+
+class boyer_moore_finder : public pattern_finder
+{
+    boyer_moore_finder(const std::string text_file_path, const std::string pattern);
+
+    virtual void search() override;
+};
+
+class rabin_karp_finder : public pattern_finder
+{
+public:
+    rabin_karp_finder(const std::string text_file_path, const std::string pattern);
+
+    virtual void search() override;
+
+    int alph_length{ 256 };
+    int prime_delim{ 101 };
+};
