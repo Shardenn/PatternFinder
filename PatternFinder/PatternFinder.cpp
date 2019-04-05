@@ -112,7 +112,7 @@ std::vector<size_t> kmp_finder::get_pattern_entries(std::ifstream* s)
         if (text_char == m_pattern[j])
             j++;
         if (j == m_pattern.size())
-            res.push_back(current_index - m_pattern.size() + 1);
+            res.push_back(current_index - m_pattern.size() + 2);
         current_index++;
     }
     return res;
@@ -158,6 +158,7 @@ void rabin_karp_finder::search()
 
     // Slide the pattern over text one by one 
     m_text_file.seekg(0);
+    char *symbols = new char[pattern_len + 1];
     while(m_text_file.peek() != EOF)
     {
         // Check the hash values of current window of text 
@@ -193,9 +194,8 @@ void rabin_karp_finder::search()
 
             char lost_symbol = m_text_file.get();
 
-            char *symbols = new char[pattern_len + 1];
-            m_text_file.get(symbols, pattern_len + 1);
             
+            m_text_file.read(symbols, pattern_len + 1);
             char new_symbol = symbols[pattern_len - 1];
 
             // casting because char == unsigned int and it results into wrong arithmetics
@@ -206,9 +206,11 @@ void rabin_karp_finder::search()
             if (t < 0)
                 t = (t + prime_delim);
 
-            delete[] symbols;
+            
             m_text_file.seekg(previous_position);
-            m_text_file.get();
+            if (!m_text_file.get())
+                break;
         }
     }
+    delete[] symbols;
 }
