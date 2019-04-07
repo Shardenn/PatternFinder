@@ -123,6 +123,8 @@ std::vector<size_t> kmp_finder::get_pattern_entries(std::ifstream* s)
 
 void boyer_moore_finder::search()
 {
+    Logger::log("Boyer Moore finder started...");
+
     m_text_file.seekg(0, m_text_file.end);
 
     int pattern_length = m_pattern.size(), file_length = m_text_file.tellg();
@@ -171,11 +173,14 @@ void boyer_moore_finder::search()
             numS = i;
         }
     }
+    Logger::log("Boyer Moore finder finished.");
 }
 
 
 void rabin_karp_finder::search()
 {
+    Logger::log("Rabin Karp finder started...");
+
     int pattern_len = m_pattern.length();
     
     int i, j;
@@ -252,4 +257,6 @@ void rabin_karp_finder::search()
         }
     }
     delete[] symbols;
+
+    Logger::log("Rabin Karp finder finished.");
 }
