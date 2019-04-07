@@ -10,7 +10,6 @@ class pattern_finder
 public:
     virtual void search() {};
     void print_result();
-    //bool is_initialized_successfully() { return b_init_ok; }
 
     pattern_finder(const std::string text_file_path, const std::string pattern);
     virtual ~pattern_finder();
@@ -21,12 +20,9 @@ protected:
     
     const std::string m_text_file_path;
     // if we could not open the file, we'll treat its path as the text itself
-    //const std::string m_text; 
     const std::string m_pattern;
 
     std::ifstream m_text_file;
-
-    //bool b_init_ok;
 };
 
 class naive_finder : public pattern_finder
@@ -64,7 +60,10 @@ private:
 
 class boyer_moore_finder : public pattern_finder
 {
-    boyer_moore_finder(const std::string text_file_path, const std::string pattern);
+public:
+    boyer_moore_finder(const std::string text_file_path, const std::string pattern) :
+        pattern_finder(text_file_path, pattern)
+    {};
 
     virtual void search() override;
 };
@@ -72,7 +71,9 @@ class boyer_moore_finder : public pattern_finder
 class rabin_karp_finder : public pattern_finder
 {
 public:
-    rabin_karp_finder(const std::string text_file_path, const std::string pattern);
+    rabin_karp_finder(const std::string text_file_path, const std::string pattern) :
+        pattern_finder(text_file_path, pattern)
+    {};
 
     virtual void search() override;
 

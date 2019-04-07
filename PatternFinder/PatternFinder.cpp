@@ -2,6 +2,7 @@
 #include "logger.hpp"
 #include <assert.h>
 #include <math.h>
+#include <map>
 
 pattern_finder::pattern_finder(const std::string text_file_path, const std::string pattern) :
     m_pattern(pattern)
@@ -118,22 +119,60 @@ std::vector<size_t> kmp_finder::get_pattern_entries(std::ifstream* s)
     return res;
 }
 
-boyer_moore_finder::boyer_moore_finder(const std::string text_file_path, const std::string pattern) :
-    pattern_finder(text_file_path, pattern)
-{
 
-}
 
 void boyer_moore_finder::search()
 {
+    m_text_file.seekg(0, m_text_file.end);
 
+    int pattern_length = m_pattern.size(), file_length = m_text_file.tellg();
+    
+    std::map <char, int> d;
+    for (int i = pattern_length - 1; i >= 0; i--)
+    {
+        d[m_pattern[i]] = pattern_length - i;
+    }
+    
+    int i = pattern_length, numPat = pattern_length, numS = pattern_length;
+    char current_symbol;
+    while (i < file_length)
+    {
+        m_text_file.seekg(numS - 1); 
+        m_text_file.get(current_symbol);
+        
+        if (current_symbol == m_pattern[numPat - 1])
+        {
+            numS--;
+            numPat--;
+        }
+        else
+        {
+            m_text_file.seekg(i); 
+            m_text_file.get(current_symbol);
+            
+            // if we found such a symbol in the pattern,
+            // shift the search to adjust file with pattern
+            if (d.count(current_symbol) > 0)
+                i += d[current_symbol];
+            // otherwise shift the text for the whole pattern
+            else
+                i += pattern_length + 1;
+
+            numPat = pattern_length;
+            numS = i;
+        }
+
+        if (numPat <= 0)
+        {
+            m_pattern_entries.push_back(numS);
+            i = numS + pattern_length + 1;
+
+            numPat = pattern_length;
+            numS = i;
+        }
+    }
 }
 
-rabin_karp_finder::rabin_karp_finder(const std::string text_file_path, const std::string pattern) :
-    pattern_finder(text_file_path, pattern)
-{
-
-}
 
 void rabin_karp_finder::search()
 {

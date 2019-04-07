@@ -77,8 +77,12 @@ int main(int argc, char* argv[])
         case kmp:
             finder = std::unique_ptr<kmp_finder>{ new kmp_finder(file_path, pattern) };
             break;
+        case bm:
+            finder = std::unique_ptr<boyer_moore_finder>{ new boyer_moore_finder(file_path, pattern) };
+            break;
         case rk:
             finder = std::unique_ptr<rabin_karp_finder>{ new rabin_karp_finder(file_path, pattern) };
+            break;
     }
     
     Logger logger;
